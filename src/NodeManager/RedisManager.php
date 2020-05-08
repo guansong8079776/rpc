@@ -23,9 +23,12 @@ class RedisManager implements NodeManagerInterface
         $redis = $this->pool->getObj(15);
         try {
             $nodes = $redis->hGetAll("{$this->redisKey}_{$serviceName}");
+            // 获得的hash表会导致下面的循环获取的ServcieNode返回空对象。
             $nodes = $nodes ?: [];
             $ret = [];
+            // 下面的$nodeId实际为索引下标，并不是预期的节点id
             foreach ($nodes as $nodeId => $node) {
+                // if($nodeId %2 == 0) continue;
                 $node = new ServiceNode(json_decode($node,true));
                 /**
                  * @var  $nodeId
